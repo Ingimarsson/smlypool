@@ -4,8 +4,10 @@ smlypool is a scrypt based mining pool for smileycoin.
 
 ## Installation
 
-Install virtualenv
+Install programs
 
+        sudo apt install python3
+        sudo apt install pip
         sudo apt install python3-venv
 
 Create a virtualenv
