@@ -42,7 +42,8 @@ def get_block_template(request):
 
   if "submitblock" in str(request.body):
     return JsonResponse({"result": None})
-
-  else:
+  else if "getblocktemplate"
     return JsonResponse(data)
+  else:
+    return JsonResponse({'status':'false','message':'please use submitblock or getblocktemplate'} status=500)
 
