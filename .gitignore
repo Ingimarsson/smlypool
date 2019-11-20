@@ -1,0 +1,5 @@
+# Ignore virtualenv
+smlypool/env
+
+# Ignore pyc files
+*.pyc
