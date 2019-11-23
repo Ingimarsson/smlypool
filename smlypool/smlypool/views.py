@@ -2,10 +2,19 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from pprint import pprint
 import time
+import json
+from datetime import datetime
+import random 
+from . import block
 
 @csrf_exempt
 def get_block_template(request):
-  pprint(request.body)
+  body_unicode = request.body.decode('utf-8')
+  body = json.loads(body_unicode)
+
+  b = block.Block()
+
+  diff = 0.001
 
   data = {
     "result": {
@@ -17,33 +26,37 @@ def get_block_template(request):
         "flags" : "062f503253482f"
       },
       "coinbasetxn": {
-        "data": "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1302955d0f00456c6967697573005047dc66085fffffffff02fff1052a010000001976a9144ebeb1cd26d6227635828d60d3e0ed7d0da248fb88ac01000000000000001976a9147c866aee1fa2f3b3d5effad576df3dbf1f07475588ac00000000"
+        "data": "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1603ef6805030d25090103062f42534d"+random.randint(1, 2**16).to_bytes(2, 'big').hex()+"504f4f4c2fffffffff0500743ba40b0000001976a91471cda15b815ec0411c1c74412598d9e695c6e37988ac00ac23fc060000001976a9141120acffc8b30a852913dd420fc19ca6f1b770f988ac00c817a8040000001976a9142cab003c8b268c815688b9eed6cfc477997b366f88ac001417c6680000001976a914e8dbc5ac7e84cea890b29c2dcc74a5391adc225c88ac001417c6680000001976a914db7aeaa2443fb3c91662392c6cac2f6eb8f0ef6e88ac00000000"
       },
       "coinbasevalue" : 1000000000000,
-      "target" : "0000007d2f640000000000000000000000000000000000000000000000000000",
+      "target" : b.difficulty_to_target_hash(diff), 
+      #"target" : "000000ff91120000000000000000000000000000000000000000000000000000",
       "mintime" : 1574245037,
       "mutable" : [
-        "submit/coinbase",
-        "coinbase/append",
+        "coinbase/append"
       ],
       "noncerange" : "00000000ffffffff",
       "sigoplimit" : 20000,
       "sizelimit" : 1000000,
-      "curtime" : 1574245354,
-      "expires": 120, 
+      "curtime" : 1346886758,
+      #"curtime" : int(datetime.timestamp(datetime.now())),
+      "expires": 30, 
       "bits" : "1c05f705",
-      "height" : 598154,
+      "height" : 354543,
     },
     "error": None,
     "id": 0
   }
 
-  time.sleep(2)
 
   if "submitblock" in str(request.body):
-    return JsonResponse({"result": None})
-  else if "getblocktemplate"
-    return JsonResponse(data)
-  else:
-    return JsonResponse({'status':'false','message':'please use submitblock or getblocktemplate'} status=500)
+    golden_nonce = body['params'][0][152:160]
+    #print(golden_nonce)
+    #print(body['params'][0])
 
+    print("Submitted difficulty: "+str(b.get_submission_difficulty(body['params'][0])))
+
+    return JsonResponse({"result": None})
+
+  else:
+    return JsonResponse(data)
