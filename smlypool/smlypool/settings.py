@@ -118,3 +118,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# Smileycoin settings
+
+RPC_USER = 'smileycoinrpc'
+RPC_PASS = 'AjAK7mqtFi3aiSvhhe3HViEi9FFkueoXFe9vGGzeZYQF'
+RPC_PORT = 14242
+

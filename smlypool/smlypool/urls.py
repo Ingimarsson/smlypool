@@ -19,6 +19,7 @@ from . import views
 
 urlpatterns = [
   path('admin/', admin.site.urls),
-  path('', views.get_block_template)
+  path('dashboard/', views.dashboard),
+  path('', views.get_block_template),
 ]
 

@@ -5,7 +5,7 @@ import time
 import json
 from datetime import datetime
 import random 
-from . import block
+from . import block, rpc
 
 @csrf_exempt
 def get_block_template(request):
@@ -60,3 +60,9 @@ def get_block_template(request):
 
   else:
     return JsonResponse(data)
+
+
+def dashboard(request):
+
+  wallet = rpc.RPC()
+  return JsonResponse(wallet.call("getblocktemplate"))
