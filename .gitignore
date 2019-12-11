@@ -1,5 +1,7 @@
 # Ignore virtualenv
 smlypool/env
+env
+bitcoinlib
 
 # Ignore pyc files
 *.pyc

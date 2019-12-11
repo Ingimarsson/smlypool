@@ -21,5 +21,6 @@ urlpatterns = [
   path('admin/', admin.site.urls),
   path('dashboard/', views.dashboard),
   path('', views.get_block_template),
+  path('info/', views.info),
 ]
 

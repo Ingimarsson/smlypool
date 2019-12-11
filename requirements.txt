@@ -1,3 +1,4 @@
 Django
 base58
 scrypt
+bitcoinlib

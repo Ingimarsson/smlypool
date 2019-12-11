@@ -1,5 +1,6 @@
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render
 from pprint import pprint
 import time
 import json
@@ -66,3 +67,6 @@ def dashboard(request):
 
   wallet = rpc.RPC()
   return JsonResponse(wallet.call("getblocktemplate"))
+
+def info(request):
+    return render(request, 'info.html')
