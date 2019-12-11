@@ -18,7 +18,7 @@ def get_block_template(request):
 
   b = block.Block()
 
-  diff = 0.001
+  diff = 0.01
 
   data = {
     "result": {
@@ -58,9 +58,11 @@ def get_block_template(request):
     #print(golden_nonce)
     #print(body['params'][0])
 
-    difficulty = b.get_submission_difficulty(body['params'][0]
+    difficulty = b.get_submission_difficulty(body['params'][0])
 
     user, password = get_auth(request.META)
+
+    print("Username: "+user)
 
     print("Submitted difficulty: "+str(b.get_submission_difficulty(body['params'][0])))
 
@@ -86,10 +88,15 @@ def dashboard(request):
 
   return HttpResponse("User: "+user+" Pass: "+password)
 
+
 def get_auth(meta):
   data = base64.b64decode(meta['HTTP_AUTHORIZATION'].split()[1]).decode().split(":")
 
   return data[0], data[1]
 
+
 def info(request):
-    return render(request, 'info.html')
+  latest = Shares.objects.all().order_by('-id')[:10]
+  highest = Shares.objects.all().order_by('-difficulty')[:10]
+
+  return render(request, 'info.html', {'latest': latest, 'highest': highest})
