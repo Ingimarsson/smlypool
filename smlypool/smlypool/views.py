@@ -1,6 +1,6 @@
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-
+from django.shortcuts import render
 from pprint import pprint
 import time
 import json
@@ -90,3 +90,6 @@ def get_auth(meta):
   data = base64.b64decode(meta['HTTP_AUTHORIZATION'].split()[1]).decode().split(":")
 
   return data[0], data[1]
+
+def info(request):
+    return render(request, 'info.html')
