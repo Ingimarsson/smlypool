@@ -2,6 +2,7 @@ import struct
 import bitcoinlib
 import scrypt
 import codecs
+import random
 
 DIFF_1 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000
 
@@ -49,8 +50,10 @@ class Block:
     self.coinbasetx += "03"
     self.coinbasetx += self.height.to_bytes(3, 'little').hex()
 
-    # Coinbase arbitrary data / extra nounce (length 22 bytes)
-    self.coinbasetx += "030d25090103062f42534d4c59504f4f4c2fffffffff"
+    # Coinbase arbitrary data / extra nounce (length 22 bytes) w/ two random bytes
+    self.coinbasetx += "030d25090103062f42534d4c59504f4"
+    self.coinbasetx += random.randint(1, 2**16).to_bytes(2, 'big').hex()
+    self.coinbasetx += "fffffffff"
 
     outputs = {
       'BEppJqTLw5ByePPbZwm7hByqqwcmsCtVfK': 500,
@@ -83,6 +86,17 @@ class Block:
 
     return self.coinbasetx
 
+  """
+  Constructs the JSON response for miners
+  """
+  def build_gbt(self):
+    data = {
+      "nonce": 0
+      # missing everything
+    }
+
+    return data
+
 
   """
   Calculates the difficulty of the hash of a raw block.
@@ -113,7 +127,5 @@ class Block:
   """
   def difficulty_to_target_hash(self, difficulty):
     return int(DIFF_1 / difficulty).to_bytes(32, 'big').hex()
-
-
 
 

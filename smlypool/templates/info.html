@@ -2,9 +2,42 @@
 <html>
 <body>
 
-<h1>My First Heading</h1>
+<h1>Recent submissions</h1>
 
-<p>My first paragraph.</p>
+<table width=60% border=1>
+  <tr>
+    <th>Time</th>
+    <th>Miner</th>
+    <th>Difficulty</th>
+  </tr>
+
+{% for l in latest %}
+  <tr>
+    <td>{{ l.created }}</td>
+    <td>{{ l.user }}</td>
+    <td>{{ l.difficulty }}</td>
+  </td>
+{% endfor %}
+</table>
+
+<h1>Top submissions</h1>
+
+<table width=60% border=1>
+  <tr>
+    <th>Time</th>
+    <th>Miner</th>
+    <th>Difficulty</th>
+  </tr>
+
+{% for l in highest %}
+  <tr>
+    <td>{{ l.created }}</td>
+    <td>{{ l.user }}</td>
+    <td>{{ l.difficulty }}</td>
+  </td>
+{% endfor %}
+</table>
+
 
 </body>
 </html>
