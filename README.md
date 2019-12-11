@@ -28,7 +28,7 @@ Run the server
 ## To-do list
 
  - Coinbase creation function (CHECK)
- - Get GBT from wallet.
+ - Get GBT from wallet. (CHECK)
    - Store as django model
  - Create block template for miners
    - Check if wallet GBT has changed
