@@ -1,0 +1,175 @@
+\section{Foundations}
+
+Before we develop a functional mining pool, we need to understand the foundations of the blockchain, transactions and the protocols that miners, pools and wallets communicate with.
+
+\subsection{The Blockchain}
+
+The blockchain is a data structure in which each block contains a number of transactions. The header of each block contains the hash of the previous block, forming a chain. To add a new block to the top of the chain, miners need to find a solution to a difficult hashing problem, or else it will be rejected from the network.
+
+\subsubsection{The Structure of a Block}
+
+This section describes the data structure behind blocks.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{block.pdf}
+    \caption{The Block Header}
+    \label{fig:block_header}
+\end{figure}
+
+\subsubsection{Magic Number}
+
+This field is always left as \texttt{0xD9B4BEF9}, the magic number for Bitcoin. Magic numbers are commonly used in computer science to identify file formats and protocols. 
+
+\subsubsection{Block Size}
+
+The total size of the block in bytes. As the field is 4 bytes long, the theoretical maximum size of a block is $2^{32}$ or around 4 gigabytes.
+
+\subsubsection{Version}
+
+The version of the software. Usually left as $1$ or \texttt{0x0001}.
+
+\subsubsection{Previous Block Hash}
+
+The SHA256 hash of the previous block. This is how the block is linked to its previous block, thus forming a chain. Note that there is no field that specifies the height of the block.
+
+\subsubsection{Merkle Root}
+
+The Merkle root is computed from the hashes of all the transactions in the block. Thus to check if a transaction is included in a block, you only need to calculate $\ln_2(n)$ hashes.
+
+\subsubsection{Timestamp}
+
+The UNIX timestamp of when the block was found. In other words, the number of seconds between the date it was found and January 1, 1970.
+
+\subsubsection{Difficulty Target}
+
+The difficulty of mining an acceptable block is determined by the difficulty target. To successfully submit a block to the network, miners need to find a hash for the block header such that the result is below the difficulty target.
+
+\subsubsection{Nonce}
+
+The nonce can take any value. Miners iterate through random values and apply a hashing function (such as SHA256) until they find a nonce that satisfies the difficulty target. The output of the hashing function is a 256 bit integer so miners might have to go through millions of hashes before finding a solution.
+
+\subsection{The Transaction}
+
+Here we describe how transactions are encoded as bitstrings. For the purpose of developing a mining pool we only need to understand the coinbase transaction.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+version           & 4 bytes  & Transaction version number.                                       \\ \hline
+tx\_in\_count     & 1 byte   & Number of inputs in this transaction, coinbase has one input.     \\ \hline
+hash              & 32 bytes & A 32-byte null as the coinbase has no previous outpoint.          \\ \hline
+index             & 4 bytes  & Left as 0xFFFFFFFF for the coinbase.                              \\ \hline
+script\_bytes     & variable & The length of the coinbase script, up to 100 bytes.               \\ \hline
+height            & 4 bytes  & The block height.                                                 \\ \hline
+coinbase\_script  & variable & The coinbase field, can contain any data up to 100 bytes.         \\ \hline
+sequence          & 4 bytes  & An end sequence for the input 0x00000000                          \\ \hline
+tx\_out\_count    & 1 byte   & Number of outputs in this transaction.                            \\ \hline
+\rowcolor[HTML]{FFFFC7} 
+value             & 8 bytes  & The amount that should be spent in satoshis.                      \\ \hline
+\rowcolor[HTML]{FFFFC7} 
+pk\_script\_bytes & variable & The length of the pubkey script.                                  \\ \hline
+\rowcolor[HTML]{FFFFC7} 
+pk\_script        & variable & The pubkey script that needs to be satisfied to spend this value. \\ \hline
+lock\_time        & 4 bytes  & The block height or timestamp when this output can be spent. \\ \hline
+\end{tabular}
+\caption{Structure of the coinbase transaction, colored rows may be repeated.}
+\end{table}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{transaction.png}
+    \caption{Structure of a Typical Transaction.}
+    \label{fig:block_header}
+\end{figure}
+
+The coinbase transaction is a special transaction that miners are allowed to include in their blocks, intended as a reward for their work. It does not need previous transaction outputs to spend like normal transactions. \\
+
+For SmileyCoin the coinbase transaction has a value of $10000$ SMLY and is cut in half every $1.22$ million blocks. Two 45\% shares must go to charity funds and the other 10\% can be used by the miner. This means that the coinbase transaction usually has three outputs, but it would be possible to distribute the miner reward by adding more outputs.
+
+\subsection{GBT}
+
+Here we describe how the GBT (getblocktemplate) protocol for mining works. The simplest way to communicate with the wallet is using its HTTP interface which uses JSON-RPC.
+
+\subsubsection{getblocktemplate}
+
+Miners can use the \texttt{getblocktemplate} command to get information about what to mine. 
+
+\begin{minted}[fontsize=\footnotesize]{text}
+
+$ curl --data-binary '{"jsonrpc":"1.0","id":0,"method":"getblocktemplate","params":[]}' \ 
+    -H 'content-type:text/plain;' http://user:password@127.0.0.1:14242/
+{
+    "result" : {
+        "version" : 2,
+        "previousblockhash" : "42158955048b9f47415e91e97e7717be5e045f5f450f49d4fe3a3f92633078bd",
+        "transactions" : [
+        ],
+        "coinbaseaux" : {
+            "flags" : "062f503253482f"
+        },
+        "coinbasevalue" : 1000000000000,
+        "target" : "0000000006240d00000000000000000000000000000000000000000000000000",
+        "mintime" : 1576188585,
+        "mutable" : [
+            "time",
+            "transactions",
+            "prevblock"
+        ],
+        "noncerange" : "00000000ffffffff",
+        "sigoplimit" : 20000,
+        "sizelimit" : 1000000,
+        "curtime" : 1576190134,
+        "bits" : "1c06240d",
+        "height" : 608403,
+        "richaddress" : {
+            "payee" : "B5HWQyy9pDzjU6zGwshqCXQBAiXwSuT9zw",
+            "script" : "76a9140928aa8fcc6263e3997e1d0c4df62ca09af40f0388ac",
+            "amount" : 450000000000
+        },
+        "EIASaddress" : {
+            "payee" : "BPVuYwyeJiXExEmEXHfCwPtRXDRqxBxTNW",
+            "script" : "76a914d0f33c697499951e3f416cdb366440432f5cccc088ac",
+            "amount" : 450000000000
+        }
+    },
+    "error" : null,
+    "id" : 0
+}
+\end{minted}
+
+Some of these attributes are optional. Miners will typically require the following attributes.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+coinbasetxn       & The coinbase transaction in hexadecimal format.                                                                                           \\ \hline
+previousblockhash & The hash of the previous block in the chain.                                                                                              \\ \hline
+transactions      & An array of all transactions to include in the block, in hexadecimal format.                                                              \\ \hline
+expires           & How many seconds miners should wait until asking for a new template.                                                           \\ \hline
+target            & The difficulty target for the block. Miners will submit when target is met.                                                           \\ \hline
+height            & The height of the current block in the chain.                                                                                             \\ \hline
+version           & The version of the protocol, usually left as 2.                                                                                           \\ \hline
+curtime           & The current UNIX timestamp.                                                                                                               \\ \hline
+mutable           & An array of options for mutating the block, \texttt{coinbase/append} is often \\ & allowed so miners won't run out of nonces. \\ \hline
+\end{tabular}
+\caption{Attributes for the GBT response.}
+\end{table}
+
+
+\subsubsection{submitblock}
+
+When miners have found a solution they can submit the whole block in hexadecimal format with the \texttt{submitblock} command, which takes the block hex as argument.
+
+\subsubsection{getwork}
+
+Before GBT was introduced, miners used the \texttt{getwork} command to know what to mine. It is simpler than \texttt{getblocktemplate} as it doesn't output all the block information, but only the header. The miners can then iterate through $2^{32}$ nonce values. As mining got more popular this became a limitation. Big mining rigs could solve gigahashes per second and quickly run out of nonce values. With GBT, miners can change other parts of the block so they won't run out of combinations.
+
+\subsubsection{Stratum}
+
+Stratum is another popular protocol for mining. Unlike the other two, it is not a part of the standard wallet. It was developed around the same time as GBT and was backed by a major mining pool. It is based on HTTP but unlike the other two protocols it keeps an open connection at all times, so that the pool can immediately inform miners of changes instead of clients polling the server at a regular interval (although GBT now also has this option).
+
+
+\newpage

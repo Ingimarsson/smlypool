@@ -127,3 +127,4 @@ RPC_USER = 'smileycoinrpc'
 RPC_PASS = 'AjAK7mqtFi3aiSvhhe3HViEi9FFkueoXFe9vGGzeZYQF'
 RPC_PORT = 14242
 
+SHARES_DIFF = 0.01
