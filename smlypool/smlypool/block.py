@@ -13,6 +13,7 @@ class Block:
     self.previousblockhash = 0
     self.target = 0
     self.height = 0
+    self.bits = ""
 
     # Block body
     self.transactions = []
@@ -114,7 +115,7 @@ class Block:
         #"curtime" : 1346886758,
         "curtime" : int(datetime.timestamp(datetime.now())),
         "expires": 30, 
-        "bits" : "1c05f705",
+        "bits" : self.bits,
         "height" : self.height,
       },
       "error": None,
