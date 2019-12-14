@@ -3,29 +3,27 @@ import bitcoinlib
 import scrypt
 import codecs
 import random
+from datetime import datetime
 
 DIFF_1 = 0x00000000FFFF0000000000000000000000000000000000000000000000000000
 
 class Block:
   def __init__(self):
     # Block header
-    self.version = 0
-    self.prevhash = 0
-    self.merkleroot = 0
-    self.timestamp = 0
+    self.previousblockhash = 0
     self.target = 0
     self.height = 0
 
     # Block body
-    self.coinbasetx = 0
-    self.txns = []
+    self.transactions = []
 
   """
-  Builds the coinbase for the block, addr is a list of addresses
-  and shares is a list of corresponding shares such that sum(shares) = 1
+  Builds the coinbase for the block, outputs is a dictionary of addresses
+  and corresponding shares, the shares will be normalized such that the
+  total outputs equal 1000 SMLY.
   https://bitcoin.org/en/developer-reference#raw-transaction-format
   """
-  def build_coinbase(self, addr, shares):
+  def build_coinbase(self, outputs):
     self.coinbasetx = ""
 
     # Version
@@ -55,20 +53,22 @@ class Block:
     self.coinbasetx += random.randint(1, 2**16).to_bytes(2, 'big').hex()
     self.coinbasetx += "fffffffff"
 
-    outputs = {
-      'BEppJqTLw5ByePPbZwm7hByqqwcmsCtVfK': 500,
-      'B61eFL4bvYznW1UEXJgHcESHD588wyAfR7': 300,
-      'B8XGCWSvQUKGbXRF9ScWsFp7nMTqq6P7zM': 200,
-      'BRgKfFuPEVFHNKWUfSnobX2byUVmUMVhux': 4500,
-      'BQTar7kTE2hu4f4LrRmomjkbsqSW9rbMvy': 4500,
-      }
+    filtered_outputs = {}
+
+    # Check for malformed outputs and add charities
+    for address, amount in outputs.items():
+      if len(address) == 34:
+        filtered_outputs[address] = amount
+
+    filtered_outputs['BRgKfFuPEVFHNKWUfSnobX2byUVmUMVhux'] = 4500
+    filtered_outputs['BQTar7kTE2hu4f4LrRmomjkbsqSW9rbMvy'] = 4500
 
     # Number of outputs
-    self.coinbasetx += len(outputs).to_bytes(1, 'little').hex()
+    self.coinbasetx += len(filtered_outputs).to_bytes(1, 'little').hex()
 
-    for address, amount in outputs.items():
-      print(address)
-      print(amount)
+    for address, amount in filtered_outputs.items():
+      # print(address)
+      # print(amount)
       self.coinbasetx += struct.pack('Q', amount*10**8).hex()
 
       # Bytes in pubkey script
@@ -89,17 +89,44 @@ class Block:
   """
   Constructs the JSON response for miners
   """
-  def build_gbt(self):
+  def create_gbt(self, shares, diff):
     data = {
-      "nonce": 0
-      # missing everything
+      "result": {
+        "version" : 2,
+        "previousblockhash" : self.previousblockhash,
+        "transactions" : self.transactions,
+        "coinbaseaux" : {
+          "flags" : "062f503253482f"
+        },
+        "coinbasetxn": {
+          "data": self.build_coinbase(shares)
+        },
+        "coinbasevalue" : 1000000000000,
+        "target" : self.difficulty_to_target_hash(diff), 
+        #"target" : "000000ff91120000000000000000000000000000000000000000000000000000",
+        #"mintime" : 1574245037,
+        "mutable" : [
+          "coinbase/append"
+        ],
+        "noncerange" : "00000000ffffffff",
+        "sigoplimit" : 20000,
+        "sizelimit" : 1000000,
+        #"curtime" : 1346886758,
+        "curtime" : int(datetime.timestamp(datetime.now())),
+        "expires": 30, 
+        "bits" : "1c05f705",
+        "height" : self.height,
+      },
+      "error": None,
+      "id": 0
     }
 
     return data
 
 
   """
-  Calculates the difficulty of the hash of a raw block.
+  Calculates the difficulty of the hash of a raw block submission. When
+  miners use submitblock this is used to calculate the difficulty.
   """
   def get_submission_difficulty(self, block_hex):
     header_bin = codecs.decode(block_hex[:160], 'hex')

@@ -1,0 +1,26 @@
+\section{The Process}
+
+This is a description of the process that miners and mining pools go through.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{network.pdf}
+    \caption{Network Diagram}
+    \label{fig:block_header}
+\end{figure}
+
+\subsection{The Mining Pool}
+
+The mining pool can be seen as a middleman. It has the core wallet on one side, which communicates with the SMLY peer-to-peer network, and maintains a copy of the blockchain and transactions that should go into the next block (the raw memory pool). The mining pool gets the template of the block that should be mined, and coordinates with mining clients to find the golden nonce.
+
+\subsection{Shares}
+
+When the wallet is asked for the block template, it responds with all the data that should go in the next block, along with the difficulty target. The actual difficulty target can be very high, making it impossible for smaller miners to find solutions. \\
+
+Mining pools usually get the block template and target from the wallet and create their own templates with the same data but lower targets for mining clients. This way miners will regularly submit solutions and the mining pool can check if it also meets the network target, and in that case forward the block submission to the wallet. Even if most solutions submitted by miners do not meet the network target, the mining pool is getting feedback from the clients and can determine their hash rates.
+
+\subsection{Payout Systems}
+
+When a successful block is submitted, the reward is usually distributed between the clients in proportion to their efforts (determined by their hash rates). The majority of mining pools use either the PPS (Pay Per Share) or PPLNS (Pay Per Last $N$ Shares) payout systems. \\
+
+In the first one, the miner is guaranteed to be paid for each share that he submits in proportion to the total number of shares received by the pool. Usually the miner will be paid immediately after submitting the block. The second one is similar, except that when the pool finds a block only miners from the last $N$ number of shares will be rewarded. This way the miner is only paid once every block and there is less risk for the pool operator. \\

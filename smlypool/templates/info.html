@@ -1,44 +1,67 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+<head>
+  <title>smlypool</title>
+  <meta charset="utf-8"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.3.1/dist/semantic.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.3.1/dist/semantic.min.js"></script>
+  <style>
+  .container { padding: 10px; }
+  td, th { padding: 8px !important; }
+  </style>
+</head>
 <body>
-
-<h1>Recent submissions</h1>
-
-<table width=60% border=1>
-  <tr>
+<div class="ui container">
+<h1 class="ui dividing header">Welcome to smlypool!</h1>
+<p>You can connect to the mining pool with the following command.</p>
+<div class="ui segment">
+  <div class="ui ignored code">
+  $ bfgminer --scrypt -o http://pool.binni.org:8000 -u [address] -p y -S ALL --set MLD:clock=600 --no-getwork --no-stratum
+  </div>
+</div>
+<p>Source code at <a href='https://github.com/ingimarsson/smlypool'>https://github.com/ingimarsson/smlypool</a></p>
+<h2 class="ui dividing header">Recent submissions</h2>
+<table class="ui striped table">
+  <thead>
     <th>Time</th>
+    <th>Height</th>
     <th>Miner</th>
-    <th>Difficulty</th>
-  </tr>
-
-{% for l in latest %}
-  <tr>
-    <td>{{ l.created }}</td>
-    <td>{{ l.user }}</td>
-    <td>{{ l.difficulty }}</td>
-  </td>
-{% endfor %}
+    <th>Submitted</th>
+    <th>Actual</th>
+  </thead>
+  <tbody>
+    {% for l in latest %}
+    <tr>
+      <td>{{ l.created }}</td>
+      <td>{{ l.height }}</td>
+      <td>{{ l.user }}</td>
+      <td>{{ l.submission_diff|floatformat:4 }}</td>
+      <td>{{ l.actual_diff|floatformat:4 }}</td>
+    </tr>
+    {% endfor%}
+  </tbody>
 </table>
-
-<h1>Top submissions</h1>
-
-<table width=60% border=1>
-  <tr>
+<h2 class="ui dividing header">Top submissions</h2>
+<table class="ui striped table">
+  <thead>
     <th>Time</th>
+    <th>Height</th>
     <th>Miner</th>
-    <th>Difficulty</th>
-  </tr>
-
-{% for l in highest %}
-  <tr>
-    <td>{{ l.created }}</td>
-    <td>{{ l.user }}</td>
-    <td>{{ l.difficulty }}</td>
-  </td>
-{% endfor %}
+    <th>Submitted</th>
+    <th>Actual</th>
+  </thead>
+  <tbody>
+    {% for l in highest %}
+    <tr>
+      <td>{{ l.created }}</td>
+      <td>{{ l.height }}</td>
+      <td>{{ l.user }}</td>
+      <td>{{ l.submission_diff|floatformat:4 }}</td>
+      <td>{{ l.actual_diff|floatformat:4 }}</td>
+    </tr>
+    {% endfor%}
+  </tbody>
 </table>
-
-
+</div>
 </body>
 </html>
-
