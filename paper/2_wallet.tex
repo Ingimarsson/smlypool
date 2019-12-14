@@ -27,7 +27,7 @@ The total size of the block in bytes. As the field is 4 bytes long, the theoreti
 
 \subsubsection{Version}
 
-The version of the software. Usually left as $1$ or \texttt{0x0001}.
+The version of the software. Usually left as $1$ or \texttt{0x00010000}.
 
 \subsubsection{Previous Block Hash}
 
@@ -35,7 +35,7 @@ The SHA256 hash of the previous block. This is how the block is linked to its pr
 
 \subsubsection{Merkle Root}
 
-The Merkle root is computed from the hashes of all the transactions in the block. Thus to check if a transaction is included in a block, you only need to calculate $\ln_2(n)$ hashes.
+The Merkle root is computed from the hashes of all the transactions in the block in a tree structure. Thus to check if a transaction is included in a block, you only need to calculate $\ln_2(n)$ hashes.
 
 \subsubsection{Timestamp}
 

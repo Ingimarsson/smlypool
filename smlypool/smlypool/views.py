@@ -33,6 +33,7 @@ def get_block_template(request):
   b.transactions = template['transactions']
   b.height = template['height']
   b.difficulty = b.target_to_difficulty(template['bits'])
+  b.bits = template['bits']
 
   if "submitblock" in str(request.body):
     # Get credentials and submission difficulty
